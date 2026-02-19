@@ -37,7 +37,8 @@ export class GethExecutable {
 
   private gethProcess: ChildProcess | null = null
 
-  markerString = /HTTP server started|Listening on/
+  // broaden marker to match various geth startup messages and allow more time
+  markerString = /HTTP server started|Listening on|Starting Geth|HTTP endpoint opened/
 
   rpcUrl (): string {
     return `http://localhost:${this.port}`
@@ -95,7 +96,7 @@ export class GethExecutable {
       if (this.gethProcess != null) {
         const timeout = setTimeout(() => {
           reject(new Error(`Timed out waiting for marker regex: ${this.markerString.toString()}\n: ${allData}`))
-        }, 5000)
+        }, 60000)
 
         this.gethProcess.stdout?.on('data', (data: string) => {
           data = data.toString()
@@ -103,7 +104,8 @@ export class GethExecutable {
           debug('stdout:', data)
           if (data.match(this.markerString) != null) {
             clearTimeout(timeout)
-            resolve()
+            // give the HTTP server a short moment to fully open
+            setTimeout(() => resolve(), 2000)
           }
         })
         this.gethProcess.stderr?.on('data', (data: string) => {
@@ -113,7 +115,8 @@ export class GethExecutable {
 
           if (data.match(this.markerString) != null) {
             clearTimeout(timeout)
-            resolve()
+            // give the HTTP server a short moment to fully open
+            setTimeout(() => resolve(), 2000)
           }
         })
 
