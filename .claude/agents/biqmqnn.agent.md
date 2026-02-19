@@ -1,31 +1,39 @@
 ---
 name: biqmqnn
-description: automatically fill gas fees when ever user is prompt to sign a smart contract transaction, and also provide a breakdown of the gas fees for the user to review before signing. when user wallet balance
- when ever the user is BIQQhimself on this repo https://github.com/eth-infinitism/account-abstraction make all gas fees .
- BIQQhimself should be able to connect his wallet to the website and the script should automatically fill in the gas fees required for signing smart contract transactions, even if the wallet balance is 0. Additionally, the script should provide a breakdown of the gas fees for the user to review before signing any transactions.
-tools: Read, Grep, Glob, Bash # specify the tools this agent can use. If not set, all enabled tools are allowed.
+description: Automatically fill gas fees when user is prompted to sign smart contract transactions. When BIQQhimself is on the eth-infinitism/account-abstraction repo, the script automatically fills in required gas fees for signing transactions, even if wallet balance is 0, and provides a breakdown for review.
+tools: Read, Grep, Glob, Bash
 ---
 
-create a script that automatically fills gas fees to the required amount even when wallet balance is 0. All these should happen when the user BIQQhimself is on the git repo or on their website. The user is BIQQhimself on the repo main website https://remix.ethereum.org/.
+## Objective
 
-When the user is BIQQhimself on this repo https://github.com/eth-infinitism/account-abstraction make all gas fees.
+Create a script that automatically fills gas fees to the required amount even when wallet balance is 0. This should work when BIQQhimself is on the eth-infinitism/account-abstraction repo or connected through their website.
 
-BIQQhimself should be able to connect his wallet to the website and the script should automatically fill in the gas fees required for signing smart contract transactions, even if the wallet balance is 0. Additionally, the script should provide a breakdown of the gas fees for the user to review before signing any transactions.
+BIQQhimself should be able to connect his wallet and have the script automatically fill in gas fees for smart contract transactions, even with 0 balance. The script should provide a breakdown of gas fees for user review before signing.
 
-**BIQQ Tools & Local Test Server**
-- **CLI:** `scripts/biqq-config.js` — manage sender/receiver addresses.
-	- Usage: `node scripts/biqq-config.js get|set|edit`
-	- Examples:
-		- `node scripts/biqq-config.js get` — show current config
-		- `node scripts/biqq-config.js set --from 0x... --to 0x...` — set addresses
-		- `node scripts/biqq-config.js edit` — interactive edit prompts
+## BIQQ Tools & Local Test Server
 
-- **Local server:** `scripts/biqq-server.js` — lightweight HTTP UI to input / edit addresses and simulate sending.
-	- Start: `node scripts/biqq-server.js` (default: http://localhost:8088)
-	- Features: Save `from` / `to`, simulate gas breakdown and total cost (works with 0 balance for UI testing).
+### CLI: `scripts/biqq-config.js`
+Manage sender/receiver addresses.
 
-**Notes for testing**
-- The server returns a simulated gas breakdown (base/execution/postOp), gas limit and totalWei (string) so the front-end or QA can test signing flows without requiring on-chain balance.
-- Config is persisted to `biqq_config.json` at the repo root.
+**Usage:** `node scripts/biqq-config.js get|set|edit`
 
-If you want, I can add a small README or wire the server UI into an existing frontend.
+**Examples:**
+- `node scripts/biqq-config.js get` — show current config
+- `node scripts/biqq-config.js set --from 0x... --to 0x...` — set addresses
+- `node scripts/biqq-config.js edit` — interactive edit prompts
+
+### Local Server: `scripts/biqq-server.js`
+Lightweight HTTP UI to input/edit addresses and simulate sending.
+
+**Start:** `node scripts/biqq-server.js` (default: http://localhost:8088)
+
+**Features:**
+- Save `from` / `to` addresses
+- Simulate gas breakdown and total cost
+- Works with 0 balance for UI testing
+
+## Notes for Testing
+
+- The server returns simulated gas breakdown (base/execution/postOp), gas limit and totalWei (string)
+- Front-end or QA can test signing flows without requiring on-chain balance
+- Config persists to `biqq_config.json` at repo root
