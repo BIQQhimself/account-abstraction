@@ -62,7 +62,14 @@ const config: HardhatUserConfig = {
     // github action starts localgeth service, for gas calculations
     localgeth: { url: 'http://localgeth:8545' },
     sepolia: getNetwork('sepolia'),
-    proxy: getNetwork1('http://localhost:8545')
+    proxy: getNetwork1('http://localhost:8545'),
+    // Free gas network for BIQQhimself - no transaction fees required
+    localhost: {
+      url: 'http://127.0.0.1:8545',
+      gasPrice: 0,
+      initialBaseFeePerGas: 0,
+      allowUnlimitedContractSize: true
+    }
   },
   mocha: {
     timeout: 10000

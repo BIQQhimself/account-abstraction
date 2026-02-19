@@ -87,16 +87,16 @@ const server = http.createServer((req,res) => {
         // Minimal validation
         const isAddress = s => typeof s === 'string' && /^0x[0-9a-fA-F]{40}$/.test(s)
         if (!isAddress(from) || !isAddress(to)) return respondJSON(res, 400, { error: 'invalid address' })
-        // Fake gas estimation breakdown so UI can test flow even with 0 balance
+        // Fake gas estimation breakdown - FREE GAS (0 gasPrice for BIQQhimself)
         const baseGas = 21000
         const execGas = 50000
         const postOp = 15000
         const gasLimit = baseGas + execGas + postOp
-        const gasPriceGwei = 1.5
-        const gasPriceWei = BigInt(Math.floor(gasPriceGwei * 1e9))
-        const totalWei = BigInt(gasLimit) * gasPriceWei
+        const gasPriceGwei = 0 // FREE GAS - no fees required
+        const gasPriceWei = BigInt(0)
+        const totalWei = BigInt(0) // Zero cost
         respondJSON(res, 200, {
-          from, to, gasLimit, gasPriceGwei, totalWei: totalWei.toString(), breakdown: { baseGas, execGas, postOp }
+          from, to, gasLimit, gasPriceGwei, totalWei: totalWei.toString(), breakdown: { baseGas, execGas, postOp }, freeGas: true
         })
       } catch (e) { respondJSON(res, 400, { error: 'invalid json' }) }
     })
