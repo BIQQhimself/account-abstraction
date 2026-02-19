@@ -20,7 +20,11 @@
     "ci-gas-calc": "yarn gas-calc && yarn check-gas-reports",
     "check-gas-reports": "./scripts/check-gas-reports",
     "depcheck": "depcheck",
-    "runop": "hardhat run src/runop.ts "
+    "runop": "hardhat run src/runop.ts ",
+    "zero-gas:node": "hardhat node --network localhost",
+    "zero-gas:test": "hardhat test --network localhost",
+    "zero-gas:config": "node scripts/biqq-config.js",
+    "zero-gas:server": "node scripts/biqq-server.js"
   },
   "biqq": {
     "scripts": {
